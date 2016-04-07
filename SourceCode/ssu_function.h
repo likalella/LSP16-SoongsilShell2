@@ -2,8 +2,7 @@
 #define SSU_FUNCTION_H
 
 void ssu_shell(void);
-void ssu_history(int, char*[]);
-void ssu_grep(int, char*[]);
+void ssu_find(int, char*[]);
 
 // ssu command's name and function pointer
 struct ssu_function{

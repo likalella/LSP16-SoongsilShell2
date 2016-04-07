@@ -6,6 +6,8 @@
 #include "ssu_function.h"
 #include "ssu_shell.h"
 
+extern struct ssu_function cmdList[];
+
 void pr_shellUsage(){
      printf("too many argument. plz input less than or equal to 10 argument\n");
 }

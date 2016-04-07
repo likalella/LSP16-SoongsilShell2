@@ -7,7 +7,7 @@
 #include "ssu_function.h"
 
 struct ssu_function cmdList[] = {
-     {"ssu_find", ssu_find"}
+     {"ssu_find", ssu_find},
      {NULL}
 };
 
