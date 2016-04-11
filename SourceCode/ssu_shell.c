@@ -53,8 +53,8 @@ void ssu_shell(void){
      if(argc > 10)
           pr_shellUsage();
      else{
-          for(i=0; i<3; i++){
-               if(i==2){
+          for(i=0; i<2; i++){
+               if(i==1){
                     if(argv[0] != NULL){
                          system(buf2);
                     }
