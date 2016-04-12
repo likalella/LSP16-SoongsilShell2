@@ -13,12 +13,16 @@ void pr_findUsg(void){
      printf("       ssu_find FILENAME or PATTERN [TYPE]\n");
      printf("       ssu_find START_PATH -name FILENAME|PATTERN [TYPE]\n");
      printf("       ssu_find START_PATH FILENAME|PATTERN [TYPE]\n");
-     printf("[OPTION]: -name FILENAME or PATTERN\n");
+     printf("[OPTION]: -name FILENAME|PATTERN\n");
+     printf("          [TYPE]\n");
      printf("  [TYPE]: -type -{f|d|b|c|p|l|s}\n");
 }
 
 void ssu_find(int argc, char *argv[]){
      struct findSignal fs;
+     fs.cntType = 0;
+     fs.cntOpt = 0;
+     fs.cntName = 0;
      fs.is_f = 0;
      fs.is_d = 0;
      fs.is_b = 0;
@@ -26,12 +30,10 @@ void ssu_find(int argc, char *argv[]){
      fs.is_p = 0;
      fs.is_l = 0;
      fs.is_s = 0;
-     char *name = NULL;
-     char *pattern = NULL;
+     fs.np = NULL;
      char *sPath = NULL;
      int i, j;
-     int cntArg = 0, cntOpt = 0, cntType = 0;
-     struct stat file_info;
+     int cntArg = 0;
 
      // Parsing
      for(i=1; i<argc; i++){
@@ -39,35 +41,34 @@ void ssu_find(int argc, char *argv[]){
           if(*argv[i] == '-'){
                if((strcmp(argv[i], "-name")) == 0){
                     // [OPTION]
-                    if(++cntOpt != 1){
+                    if(++fs.cntOpt != 1){
+                         // wrong input, dulicated input
                          pr_findUsg();
                          return;
                     }
                     
                     if(++i < argc){
                          if(cntArg == 1){
-                              sPath = pattern;
-                              pattern = NULL;
+                              sPath = fs.np;
+                              fs.cntName--;
                          }
-                         name = argv[i];
+                         fs.np = argv[i];
                     }
                     else{
+                         // wrong input, too few argument
                          pr_findUsg();
                          return;
                     }
                }
                else if((strcmp(argv[i], "-type")) == 0){
                     // [TYPE]
-                    if(++cntType != 1){
+                    if(++fs.cntType != 1){
+                         // wrong input, duplicated input
                          pr_findUsg();
                          return;
                     }
                     
                     if(++i < argc){
-                         if(strlen(argv[i]) != 2){
-                              pr_findUsg();
-                              return;
-                         }
                          if((strcmp(argv[i], "-f")) == 0)
                               fs.is_f = 1;
                          else if((strcmp(argv[i], "-d")) == 0)
@@ -83,11 +84,13 @@ void ssu_find(int argc, char *argv[]){
                          else if((strcmp(argv[i], "-s")) == 0)
                               fs.is_s = 1;
                          else{
+                              // wrong input, invalid type
                               pr_findUsg();
                               return;
                          }
                     }
                     else{
+                         // wrong input, too few argument
                          pr_findUsg();
                          return;
                     }
@@ -100,19 +103,37 @@ void ssu_find(int argc, char *argv[]){
           }
           else{
                if(cntArg == 0){
-                    pattern = argv[i]; 
+                    if(fs.cntOpt == 1)
+                         sPath = argv[i];
+                    else{
+                         fs.np = argv[i];
+                         fs.cntName++;
+                    }
                }
                else if(cntArg == 1){
-                    sPath = pattern;
-                    pattern = argv[i];
+                    if(fs.cntOpt != 1){
+                         sPath = fs.np;
+                         fs.cntName--;
+                    }
+                    fs.np = argv[i];
+                    fs.cntName++;
                }
                else{
+                    // wrong input, too many argument
                     pr_findUsg();
                     return;
                }
                cntArg++;
           }
      }
-
-     
+     printf("cntArg: %d\ncntName: %d\ncntOpt: %d\ncntType: %d\n",
+               cntArg, fs.cntName, fs.cntOpt, fs.cntType);
+     /*if(sPath!=NULL && fs.cntName==0 && fs.cntOpt==0 && fs.cntType!=0){
+          pr_findUsg();
+          return;
+     }*/
+     if(sPath!=NULL && fs.cntName!=0 && fs.cntOpt!=0){
+          pr_findUsg();
+          return;
+     }
 }
