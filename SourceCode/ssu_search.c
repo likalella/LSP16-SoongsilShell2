@@ -2,29 +2,28 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <dirent.h>
+#include <fnmatch.h>
 #include <limits.h>
 #include <string.h>
 #include <sys/stat.h>
 #include "ssu_find.h"
+#include "ssu_search.h"
 
 void searchFile(char *path, struct findSignal *fs)
 {
      struct stat statbuf;
-     struct dirent *drip;
-     DIR *dp;
      char aPath[PATH_MAX] = "";
-     char nPath[PATH_MAX] = "";
      
-     if(stat(path, &statbuf) < 0){
-          fprintf(stderr, "can't read %s\n", path);
-          return;
-     }
-
      // *******  maybe pattern matching here. *******
 
      // get Absolute_pathname
      if(realpath(path, aPath) == NULL){
           fprintf(stderr, "can't get ablsolute pathname %s\n", path);
+          return;
+     }
+
+     if(stat(path, &statbuf) < 0){
+          fprintf(stderr, "can't read %s\n", path);
           return;
      }
 
@@ -56,7 +55,9 @@ void searchFile(char *path, struct findSignal *fs)
                          printf("%s\n", aPath);
                     break;
                case S_IFDIR:
-
+                    if(fs->is_d == 1){
+                         printf("%s\n", aPath);
+                    }
                     break;
                default:
                     pr_findUsg();
@@ -69,7 +70,38 @@ void searchFile(char *path, struct findSignal *fs)
           return;
      }
      else{
+          // directory
           printf("%s\n", aPath);
+          searchDir(aPath, fs);
           return;
+     }
+}
+
+void searchDir(char *path, struct findSignal *fs)
+{
+     struct dirent *dirp;
+     DIR *dp;
+     char *nPath;
+     int p, d;
+
+     if((dp = opendir(path)) == NULL){
+          fprintf(stderr, "can't open %s\n", path);
+          return;
+     }
+
+     while((dirp = readdir(dp)) != NULL){
+          if(strcmp(dirp->d_name, ".") == 0 ||
+              strcmp(dirp->d_name, "..") == 0)
+               continue;
+          p = strlen(path);
+          d = strlen(dirp->d_name);
+          nPath = (char *)malloc(p+d+2);
+          strcpy(nPath, path);
+          nPath[p] = '/';
+          strcpy(&nPath[p+1], dirp->d_name);
+          nPath[p+d+2] = '\0';
+
+          searchFile(nPath, fs);
+          free(nPath);
      }
 }
