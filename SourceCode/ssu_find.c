@@ -6,6 +6,7 @@
 #include <sys/stat.h>
 #include "ssu_function.h"
 #include "ssu_find.h"
+#include "ssu_search.h"
 
 // Print Usage
 void pr_findUsg(void){
@@ -103,8 +104,10 @@ void ssu_find(int argc, char *argv[]){
           }
           else{
                if(cntArg == 0){
-                    if(fs.cntOpt == 1)
+                    if(fs.cntOpt == 1){
                          sPath = argv[i];
+                         printf("sPath : %s\n", sPath);
+                    }
                     else{
                          fs.np = argv[i];
                          fs.cntName++;
@@ -126,14 +129,20 @@ void ssu_find(int argc, char *argv[]){
                cntArg++;
           }
      }
-     printf("cntArg: %d\ncntName: %d\ncntOpt: %d\ncntType: %d\n",
-               cntArg, fs.cntName, fs.cntOpt, fs.cntType);
-     /*if(sPath!=NULL && fs.cntName==0 && fs.cntOpt==0 && fs.cntType!=0){
-          pr_findUsg();
-          return;
-     }*/
+     
+     // wrong input, too many filename or pattern
      if(sPath!=NULL && fs.cntName!=0 && fs.cntOpt!=0){
           pr_findUsg();
+          return;
+     }
+    
+     //searchFile
+     if(sPath == NULL){
+          searchFile("/", &fs);
+          return;
+     }
+     else{
+          searchFile(sPath, &fs);
           return;
      }
 }
