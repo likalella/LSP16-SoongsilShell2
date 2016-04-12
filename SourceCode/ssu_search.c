@@ -5,7 +5,6 @@
 #include <fnmatch.h>
 #include <limits.h>
 #include <string.h>
-#include <errno.h>
 #include <sys/stat.h>
 #include "ssu_find.h"
 #include "ssu_search.h"
@@ -30,7 +29,14 @@ void searchFile(char *path, struct findSignal *fs)
 
      // type option
      if(fs->cntType == 1){
-     switch(statbuf.st_mode & S_IFMT){
+          if(S_ISDIR(statbuf.st_mode) != 0){
+               if(fs->is_d == 1)
+                    printf("%s\n", aPath);
+               searchDir(aPath, fs);
+               return;
+          }
+
+          switch(statbuf.st_mode & S_IFMT){
                case S_IFREG:
                     if(fs->is_f == 1)
                          printf("%s\n", aPath);
@@ -55,13 +61,9 @@ void searchFile(char *path, struct findSignal *fs)
                     if(fs->is_s == 1)
                          printf("%s\n", aPath);
                     break;
-               case S_IFDIR:
-                    if(fs->is_d == 1){
-                         printf("%s\n", aPath);
-                    }
-                    break;
                default:
                     pr_findUsg();
+                    break;
           }
           return;
      }
@@ -72,8 +74,7 @@ void searchFile(char *path, struct findSignal *fs)
      }
      else{
           // directory
-          printf("directory\n");
-          printf("dir : %s\n", aPath);
+          printf("%s\n", aPath);
           searchDir(aPath, fs);
           return;
      }
