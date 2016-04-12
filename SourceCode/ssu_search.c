@@ -5,6 +5,7 @@
 #include <fnmatch.h>
 #include <limits.h>
 #include <string.h>
+#include <errno.h>
 #include <sys/stat.h>
 #include "ssu_find.h"
 #include "ssu_search.h"
@@ -22,7 +23,7 @@ void searchFile(char *path, struct findSignal *fs)
           return;
      }
 
-     if(stat(path, &statbuf) < 0){
+     if(lstat(path, &statbuf) < 0){
           fprintf(stderr, "can't read %s\n", path);
           return;
      }
@@ -71,7 +72,8 @@ void searchFile(char *path, struct findSignal *fs)
      }
      else{
           // directory
-          printf("%s\n", aPath);
+          printf("directory\n");
+          printf("dir : %s\n", aPath);
           searchDir(aPath, fs);
           return;
      }
@@ -97,11 +99,18 @@ void searchDir(char *path, struct findSignal *fs)
           d = strlen(dirp->d_name);
           nPath = (char *)malloc(p+d+2);
           strcpy(nPath, path);
-          nPath[p] = '/';
-          strcpy(&nPath[p+1], dirp->d_name);
-          nPath[p+d+2] = '\0';
+          if(path[p-1] != '/'){
+               nPath[p] = '/';
+               strcpy(&nPath[p+1], dirp->d_name);
+               nPath[p+d+1] = '\0';
+          }
+          else{
+               strcpy(&nPath[p], dirp->d_name);
+               nPath[p+d] = '\0';
+          }
 
           searchFile(nPath, fs);
           free(nPath);
      }
+     closedir(dp);
 }
