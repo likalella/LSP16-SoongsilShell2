@@ -6,6 +6,7 @@ struct findSignal{
      int cntType;
      int cntOpt;
      int cntName;
+     int cntStart;
      int is_f;
      int is_d;
      int is_b;
