@@ -33,8 +33,10 @@ void ssu_find(int argc, char *argv[]){
      fs.is_s = 0;
      fs.np = NULL;
      char *sPath = NULL;
-     int i, j;
+     char *tmp;
+     int i, j, len;
      int cntArg = 0;
+     int mod = 0;
 
      // Parsing
      for(i=1; i<argc; i++){
@@ -106,7 +108,6 @@ void ssu_find(int argc, char *argv[]){
                if(cntArg == 0){
                     if(fs.cntOpt == 1){
                          sPath = argv[i];
-                         printf("sPath : %s\n", sPath);
                     }
                     else{
                          fs.np = argv[i];
@@ -135,7 +136,63 @@ void ssu_find(int argc, char *argv[]){
           pr_findUsg();
           return;
      }
-    
+
+     // filname_or_pattern !=NULL""
+     if(fs.np != NULL){
+          // '' "" check
+          len = strlen(fs.np);
+          if((fs.np[0] == '\'' && fs.np[len-1] == '\'') || 
+                    (fs.np[0] == '\"' && fs.np[len-1] == '\"')){
+               tmp = (char *)malloc(len);
+               strncpy(tmp, &fs.np[1], len-2);
+               tmp[len-2] = '\0';
+               fs.np = tmp;
+               tmp = NULL;
+               len -= 2;
+               mod++;
+          }
+
+          // whild card modify
+          if(fs.np[0] == '/'){
+               tmp = (char *)malloc(len+2);
+               tmp[0] = '*';
+               strncpy(&tmp[1], fs.np, len);
+               tmp[len+1] = '\0';
+               if(mod != 0)
+                    free(fs.np);
+               fs.np = tmp;
+               tmp = NULL;
+               len++;
+               mod++;
+          }else if(fs.np[0] != '*'){
+               tmp = (char *)malloc(len+3);
+               tmp[0] = '*';
+               tmp [1] = '/';
+               strncpy(&tmp[2], fs.np, len);
+               tmp[len+2] = '\0';
+               if(mod != 0)
+                    free(fs.np);
+               fs.np = tmp;
+               tmp = NULL;
+               len += 2;
+               mod ++;
+          }
+
+          if(fs.np[len-1] == '*'){
+               tmp = (char *)malloc(len+4);
+               strncpy(tmp, fs.np, len-1);
+               strncpy(&tmp[len-1], "[!/]", 4);
+               tmp[len+3] = '\0';
+               if(mod != 0)
+                    free(fs.np);
+               fs.np = tmp;
+               tmp = NULL;
+               len += 3;
+               mod ++;
+               printf("[!/]: %s\n", fs.np);
+          }
+     }
+
      //searchFile
      if(sPath == NULL){
           searchFile("/", &fs);
