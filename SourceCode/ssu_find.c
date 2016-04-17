@@ -24,6 +24,7 @@ void ssu_find(int argc, char *argv[]){
      fs.cntType = 0;
      fs.cntOpt = 0;
      fs.cntName = 0;
+     fs.cntStart = 0;
      fs.is_f = 0;
      fs.is_d = 0;
      fs.is_b = 0;
@@ -199,6 +200,7 @@ void ssu_find(int argc, char *argv[]){
           return;
      }
      else{
+          fs.cntStart = 1;
           searchFile(sPath, &fs);
           return;
      }
