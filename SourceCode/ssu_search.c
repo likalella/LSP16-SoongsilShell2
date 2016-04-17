@@ -70,7 +70,7 @@ void searchFile(char *path, struct findSignal *fs)
                          printf("%s\n", aPath);
                     break;
                case S_IFLNK:
-                    if(fs->is_s == 1)
+                    if(fs->is_l == 1)
                          printf("%s\n", aPath);
                     break;
                default:
