@@ -190,7 +190,6 @@ void ssu_find(int argc, char *argv[]){
                tmp = NULL;
                len += 3;
                mod ++;
-               printf("[!/]: %s\n", fs.np);
           }
      }
 
