@@ -22,8 +22,10 @@ void searchFile(char *path, struct findSignal *fs)
           fprintf(stderr, "can't get ablsolute pathname %s\n", path);
           return;
      }
+	 if(strcmp(path, aPath) != 0)
+		 return;
 
-     if(lstat(path, &statbuf) < 0){
+     if(lstat(aPath, &statbuf) < 0){
           fprintf(stderr, "can't read %s\n", path);
           return;
      }
@@ -52,7 +54,7 @@ void searchFile(char *path, struct findSignal *fs)
                     fs->np = tmp2;
                }
                searchDir(aPath, fs);
-               if(tmp!=NULL){
+               if(tmp2!=NULL){
                     free(tmp2);
                     fs->np = tmp;
                }
@@ -93,8 +95,9 @@ void searchFile(char *path, struct findSignal *fs)
      }
 
      if(S_ISDIR(statbuf.st_mode) == 0){
-          if(print)
+          if(print){
                printf("%s\n", aPath);
+		  }
           return;
      }
      else{
@@ -107,17 +110,17 @@ void searchFile(char *path, struct findSignal *fs)
                     fs->np = tmp;
           }
           if(fs->np != NULL && print == 1){
-               tmp2 = (char *)malloc(strlen(aPath)+strlen(fs->firstNp));
-               strncpy(tmp2, aPath, strlen(aPath));
-               strncpy(&tmp2[strlen(aPath)], &fs->firstNp[1], strlen(fs->firstNp)-1);
-               tmp2[strlen(aPath)+strlen(fs->firstNp)-1] = '\0';
-               fs->np = tmp2;
-          }
-          searchDir(aPath, fs);
-          if(tmp!=NULL){
-               free(tmp2);
-               fs->np = tmp;
-          }
+			   	tmp2 = (char *)malloc(strlen(aPath)+strlen(fs->firstNp));
+               	strncpy(tmp2, aPath, strlen(aPath));
+               	strncpy(&tmp2[strlen(aPath)], &fs->firstNp[1], strlen(fs->firstNp)-1);
+               	tmp2[strlen(aPath)+strlen(fs->firstNp)-1] = '\0';
+               	fs->np = tmp2;
+          		searchDir(aPath, fs);
+				free(tmp2);
+                fs->np = tmp;
+          }else{
+			  searchDir(aPath, fs);
+		  }
           return;
      }
 }
@@ -140,7 +143,9 @@ void searchDir(char *path, struct findSignal *fs)
                continue;
           p = strlen(path);
           d = strlen(dirp->d_name);
+		  
           nPath = (char *)malloc(p+d+2);
+		  memset(nPath, '\0', p+d+2);
           strcpy(nPath, path);
           if(path[p-1] != '/'){
                nPath[p] = '/';
@@ -151,7 +156,6 @@ void searchDir(char *path, struct findSignal *fs)
                strcpy(&nPath[p], dirp->d_name);
                nPath[p+d] = '\0';
           }
-
           searchFile(nPath, fs);
           free(nPath);
      }

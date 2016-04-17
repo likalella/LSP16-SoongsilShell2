@@ -35,6 +35,7 @@ void ssu_find(int argc, char *argv[]){
      fs.np = NULL;
      fs.firstNp = NULL;
      char *sPath = NULL;
+	 char aPath[1024] = "";
      char *tmp;
      int i, j, len;
      int cntArg = 0;
@@ -166,7 +167,7 @@ void ssu_find(int argc, char *argv[]){
                tmp = NULL;
                len++;
                mod++;
-          }else if(fs.np[0] != '*'){
+          }else{
                tmp = (char *)malloc(len+3);
                tmp[0] = '*';
                tmp [1] = '/';
@@ -204,7 +205,11 @@ void ssu_find(int argc, char *argv[]){
      }
      else{
           fs.cntStart = 1;
-          searchFile(sPath, &fs);
+		  if(realpath(sPath, aPath) == NULL){
+		  	fprintf(stderr, "can't get absolute pathname %s\n", sPath);
+			return;
+		  }
+          searchFile(aPath, &fs);
           return;
      }
 }
