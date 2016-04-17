@@ -33,6 +33,7 @@ void ssu_find(int argc, char *argv[]){
      fs.is_l = 0;
      fs.is_s = 0;
      fs.np = NULL;
+     fs.firstNp = NULL;
      char *sPath = NULL;
      char *tmp;
      int i, j, len;
@@ -178,8 +179,11 @@ void ssu_find(int argc, char *argv[]){
                len += 2;
                mod ++;
           }
+          fs.firstNp = (char*)malloc(len+1);
+          strcpy(fs.firstNp, fs.np);
+          fs.firstNp[len] = '\0';
 
-          if(fs.np[len-1] == '*'){
+/*          if(fs.np[len-1] == '*'){
                tmp = (char *)malloc(len+4);
                strncpy(tmp, fs.np, len-1);
                strncpy(&tmp[len-1], "[!/]", 4);
@@ -191,8 +195,8 @@ void ssu_find(int argc, char *argv[]){
                len += 3;
                mod ++;
           }
+ */
      }
-
      //searchFile
      if(sPath == NULL){
           searchFile("/", &fs);

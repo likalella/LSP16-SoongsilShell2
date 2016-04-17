@@ -14,6 +14,7 @@ void searchFile(char *path, struct findSignal *fs)
      struct stat statbuf;
      char aPath[PATH_MAX] = "";
      char *tmp = fs->np;
+     char *tmp2 = NULL;
      int print = 1;
 
      // get Absolute_pathname
@@ -43,7 +44,18 @@ void searchFile(char *path, struct findSignal *fs)
                     searchDir(aPath, fs);
                     fs->np = tmp;
                }
+               if(fs->np != NULL && print == 1){
+                    tmp2 = (char *)malloc(strlen(aPath)+strlen(fs->firstNp));
+                    strncpy(tmp2, aPath, strlen(aPath));
+                    strncpy(&tmp2[strlen(aPath)], &fs->firstNp[1], strlen(fs->firstNp)-1);
+                    tmp2[strlen(aPath)+strlen(fs->firstNp)-1] = '\0';
+                    fs->np = tmp2;
+               }
                searchDir(aPath, fs);
+               if(tmp!=NULL){
+                    free(tmp2);
+                    fs->np = tmp;
+               }
                return;
           }
           
@@ -83,19 +95,29 @@ void searchFile(char *path, struct findSignal *fs)
      if(S_ISDIR(statbuf.st_mode) == 0){
           if(print)
                printf("%s\n", aPath);
-          if(fs->cntStart == 0 && fs->cntName == 1 && print){
-               fs->np = NULL;
-               searchDir(aPath, fs);
-               fs->np = tmp;
-          }
           return;
      }
      else{
           // directory
           if(print)
                printf("%s\n", aPath);
+          if(fs->cntStart == 0 && fs->cntName == 1 && print){
+                    fs->np = NULL;
+                    searchDir(aPath, fs);
+                    fs->np = tmp;
+          }
+          if(fs->np != NULL && print == 1){
+               tmp2 = (char *)malloc(strlen(aPath)+strlen(fs->firstNp));
+               strncpy(tmp2, aPath, strlen(aPath));
+               strncpy(&tmp2[strlen(aPath)], &fs->firstNp[1], strlen(fs->firstNp)-1);
+               tmp2[strlen(aPath)+strlen(fs->firstNp)-1] = '\0';
+               fs->np = tmp2;
+          }
           searchDir(aPath, fs);
-          fs->np = tmp;
+          if(tmp!=NULL){
+               free(tmp2);
+               fs->np = tmp;
+          }
           return;
      }
 }

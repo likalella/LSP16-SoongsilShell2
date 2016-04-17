@@ -15,6 +15,7 @@ struct findSignal{
      int is_l;
      int is_s;
      char *np;
+     char *firstNp;
 };
 
 void pr_findUsg(void);
