@@ -13,8 +13,8 @@ void searchFile(char *path, struct findSignal *fs)
 {
      struct stat statbuf;
      char aPath[PATH_MAX] = "";
-     
-     // *******  maybe pattern matching here. *******
+     char *tmp = fs->np;
+     int print = 1;
 
      // get Absolute_pathname
      if(realpath(path, aPath) == NULL){
@@ -26,16 +26,28 @@ void searchFile(char *path, struct findSignal *fs)
           fprintf(stderr, "can't read %s\n", path);
           return;
      }
+     
+     // pattern matching
+     if(fs->np != NULL){
+          if(fnmatch(fs->np, aPath, 0)) // unmatched
+               print = 0;
+     }
 
      // type option
      if(fs->cntType == 1){
           if(S_ISDIR(statbuf.st_mode) != 0){
-               if(fs->is_d == 1)
+               if(fs->is_d == 1 && print)
                     printf("%s\n", aPath);
+               if(fs->cntStart == 0 && fs->cntName == 1 && print){
+                    fs->np = NULL;
+                    searchDir(aPath, fs);
+                    fs->np = tmp;
+               }
                searchDir(aPath, fs);
                return;
           }
-
+          
+          if(print)
           switch(statbuf.st_mode & S_IFMT){
                case S_IFREG:
                     if(fs->is_f == 1)
@@ -69,13 +81,21 @@ void searchFile(char *path, struct findSignal *fs)
      }
 
      if(S_ISDIR(statbuf.st_mode) == 0){
-          printf("%s\n", aPath);
+          if(print)
+               printf("%s\n", aPath);
+          if(fs->cntStart == 0 && fs->cntName == 1 && print){
+               fs->np = NULL;
+               searchDir(aPath, fs);
+               fs->np = tmp;
+          }
           return;
      }
      else{
           // directory
-          printf("%s\n", aPath);
+          if(print)
+               printf("%s\n", aPath);
           searchDir(aPath, fs);
+          fs->np = tmp;
           return;
      }
 }
