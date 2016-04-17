@@ -183,21 +183,8 @@ void ssu_find(int argc, char *argv[]){
           fs.firstNp = (char*)malloc(len+1);
           strcpy(fs.firstNp, fs.np);
           fs.firstNp[len] = '\0';
-
-/*          if(fs.np[len-1] == '*'){
-               tmp = (char *)malloc(len+4);
-               strncpy(tmp, fs.np, len-1);
-               strncpy(&tmp[len-1], "[!/]", 4);
-               tmp[len+3] = '\0';
-               if(mod != 0)
-                    free(fs.np);
-               fs.np = tmp;
-               tmp = NULL;
-               len += 3;
-               mod ++;
-          }
- */
      }
+     
      //searchFile
      if(sPath == NULL){
           searchFile("/", &fs);
