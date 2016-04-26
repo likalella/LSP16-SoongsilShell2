@@ -6,11 +6,6 @@
 #include <signal.h>
 #include "ssu_function.h"
 
-struct ssu_function cmdList[] = {
-     {"ssu_find", ssu_find},
-     {NULL}
-};
-
 int main(void)
 {
      while(1){
